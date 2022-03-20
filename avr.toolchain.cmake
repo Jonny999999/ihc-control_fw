@@ -41,3 +41,9 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin )
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin )
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin )
 
+set(AVRDUDE avrdude)
+
+#set(BOARD_MCU "atmega8")
+#add_compile_options(-mmcu=${BOARD_MCU})
+#add_link_options(-mmcu=${BOARD_MCU})
+include(${CMAKE_CURRENT_LIST_DIR}/avr.cmake)

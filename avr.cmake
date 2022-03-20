@@ -1,23 +1,24 @@
 cmake_minimum_required(VERSION 3.15)
-set(CMAKE_TOOLCHAIN_FILE "${CMAKE_CURRENT_SOURCE_DIR}/../avr.toolchain.cmake")
 
-set(BOARD_MCU "atmega8p")
+###############################################################################
+### AVR controller settings:
+###############################################################################
+# Clock frequency in Hz:
 set(F_CPU 1000000UL)
-
-# board definition to be used in ifdefs:
-# (Preprocessor does not support comparing macro content)
-add_definitions(-DBOARD_${BOARD})
-
-# board definition to be used in macro expansions
-add_definitions(-DBOARD=${BOARD})
-
-# Clock frequency:
 add_definitions(-DF_CPU=${F_CPU})
 
+# Controller type:
+set(BOARD_MCU "atmega8")
 add_compile_options(-mmcu=${BOARD_MCU})
 add_link_options(-mmcu=${BOARD_MCU})
 
-include(${CMAKE_CURRENT_LIST_DIR}/avrdude.cmake)
+###############################################################################
+### AVRDUDE settings:
+###############################################################################
+# programmer board type:
+set(AVRDUDE_PROGRAMMER usbasp)
+
+set(AVRDUDE_FLAGS -p ${BOARD_MCU} -c ${AVRDUDE_PROGRAMMER})
 
 # registers the upload target for the specified BIN_NAME 
 # after calling this function you may upload/flash your application 
