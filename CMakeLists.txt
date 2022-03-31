@@ -19,3 +19,4 @@ set( CMAKE_EXPORT_COMPILE_COMMANDS ON )
 ## Cannot use provided cmake files.
 
 add_subdirectory(application)
+add_subdirectory(include)

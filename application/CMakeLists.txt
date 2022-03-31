@@ -5,4 +5,10 @@ add_executable(
     main.cpp
   )
 
+target_link_libraries(
+    hello
+    time
+    )
+
+
 register_avr_upload_target(${APP_NAME})
