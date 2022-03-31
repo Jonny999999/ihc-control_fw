@@ -1,5 +1,5 @@
-#ifndef TIME_H
-#define TIME_H
+//#ifndef TIME_H
+//#define TIME_H
 #include <avr/interrupt.h>
 #include <inttypes.h>
 
@@ -12,4 +12,4 @@ uint32_t time_get(void);
 
 // more recent time first
 uint32_t time_delta(uint32_t a, uint32_t b);
-#endif
+//#endif
