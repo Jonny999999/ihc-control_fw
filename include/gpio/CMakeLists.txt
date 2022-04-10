@@ -1,17 +1,18 @@
-project("evaluateSwitch")
+project("gpio tools")
 
 add_library(
-    evaluateSwitch
-    evaluateSwitch.cpp
+    gpio
+    gpio_evaluateSwitch.cpp
+    gpio_output.cpp
     )
 
 target_link_libraries(
-  evaluateSwitch
+  gpio
   time
   )
 
 target_include_directories(
-  evaluateSwitch
+  gpio
   PUBLIC 
   .
   )

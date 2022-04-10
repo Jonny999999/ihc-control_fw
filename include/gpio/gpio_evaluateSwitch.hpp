@@ -2,23 +2,17 @@
 
 #include <stdint.h>
 
-
-class test {
-  public:
-    int out;
-    int handlefunc();
-  private:
-    int priv;
-};
-
-class evaluatedSwitch {
+class gpio_evaluatedSwitch {
   public:
     //--- input ---
-    volatile uint8_t *port;
-    uint8_t pin;
     uint32_t minOnMs = 150;
     uint32_t minOffMs = 150;
-    evaluatedSwitch(volatile uint8_t *port_declare, uint8_t pin_declare); //constructor
+    gpio_evaluatedSwitch(
+        volatile uint8_t *reg_direction_declare, //DDRx
+        volatile uint8_t *reg_data_declare,     //PORTx
+        volatile uint8_t *reg_inputPin_declare, //PINx
+        uint8_t pin_declare     //PB6 / 6
+        ); //constructor
 
     //--- output ---         TODO make readonly? (e.g. public section: const int& x = m_x;)
     bool state = false;
@@ -31,10 +25,16 @@ class evaluatedSwitch {
     void handle();  //Statemachine for debouncing and edge detection
 
   private:
+    volatile uint8_t *reg_direction; //DDRx - Data Direction Register (rw)
+    volatile uint8_t *reg_data; //PORTx - Data Register (rw)
+    volatile uint8_t *reg_inputPin; //PINx - Input Pin Address (ro)
+    uint8_t pin;
+
     enum class switchState {TRUE, FALSE, LOW, HIGH};
     switchState p_state = switchState::FALSE;
     uint32_t timestampLow = 0;
     uint32_t timestampHigh = 0;
+    void init();
 };
 
 
