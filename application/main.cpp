@@ -53,26 +53,49 @@ int main()
     //PORTB|=(1<<6); //PB6 enable pull up
 
 
-  gpio_output led(&DDRB, &PORTB, PB7);
-  gpio_evaluatedSwitch testButton(&DDRB, &PORTB, &PINB, PB6);
+  //===== define outputs =====
+  gpio_output led(&DDRD, &PORTD, PD7);
+  gpio_output buzzer(&DDRD, &PORTD, PB6);
+
+  gpio_output k1(&DDRD, &PORTD, PD5);
+  gpio_output k2(&DDRB, &PORTB, PB7);
+  gpio_output k3(&DDRB, &PORTB, PB6);
+  gpio_output k4(&DDRD, &PORTD, PD4);
+  gpio_output k5(&DDRD, &PORTD, PD3);
+  gpio_output k6(&DDRD, &PORTD, PD2);
+  gpio_output k7(&DDRD, &PORTD, PD1);
+  gpio_output k8(&DDRD, &PORTD, PD0);
+
+  gpio_output mos1(&DDRC, &PORTC, PC4);
+  gpio_output mos2(&DDRC, &PORTC, PC4);
+
+
+  //===== define inputs =====
+  gpio_evaluatedSwitch s4(&DDRB, &PORTB, &PINB, PB2, false, true); //no pullup, inverted
+                                                                   //
+                                                                   //
+  gpio_evaluatedSwitch s2(&DDRB, &PORTB, &PINB, PB4, true, false); //pullup true, inverted true
+  gpio_evaluatedSwitch s3(&DDRB, &PORTB, &PINB, PB3, true, false); //pullup true, inverted true
+
+
 
 
   while(1){
 
 
-    testButton.handle();
+  s2.handle();
+  s3.handle();
+  s4.handle();
 
 
 
-   if(testButton.state == true){
-    //if ( !(PINB & (1 << 6)) ){ 
-    //
-     //PORTB|=(1<<7); //buzzer an
-    led.on();
-   }else{
-     led.off();
-     //PORTB&=~(1<<7); //buzzer aus
-   }
+  // if(testButton.state == true){
+  //  //if ( !(PINB & (1 << 6)) ){ 
+  //  //
+  //  led.on();
+  // }else{
+  //   led.off();
+  // }
 
 
 
@@ -84,11 +107,36 @@ int main()
     //if(testButton.risingEdge && testButton.msReleased > 5000){
     //}
 
-        //PORTB|=(1<<7); //buzzer an
-        //_delay_ms(100);
-        //PORTB&=~(1<<7); //buzzer aus
-        //_delay_ms(100);
+    if (s2.state == true){
+      k2.on();
+      led.on();
+    }else{
+      k2.off();
+      led.off();
+    }
 
+    if (s3.state == true){
+      k3.on();
+    }else{
+      k3.off();
+    }
+
+    if (s4.state == true){
+      buzzer.on();
+      k4.on();
+    }else{
+      buzzer.off();
+      k4.off();
+    }
+
+//    //blink
+//    led.on();
+//    //buzzer.on();
+//    _delay_ms(100);
+//    led.off();
+//    //buzzer.off();
+//    _delay_ms(100);
+//
 
 
   }

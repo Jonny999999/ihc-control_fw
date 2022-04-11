@@ -6,30 +6,50 @@ extern "C" {
 
 
 
-
-
-gpio_evaluatedSwitch::gpio_evaluatedSwitch(
+gpio_evaluatedSwitch::gpio_evaluatedSwitch( //minimal (use default values)
     volatile uint8_t *reg_direction_declare, //DDRx
     volatile uint8_t *reg_data_declare,     //PORTx
     volatile uint8_t *reg_inputPin_declare, //PINx
     uint8_t pin_declare     //PB6 / 6
-    ){ //constructor
+    ){
   reg_direction = reg_direction_declare;
   reg_data = reg_data_declare;
   reg_inputPin = reg_inputPin_declare;
   pin = pin_declare;
+  pullup = true;
+  inverted = false;
 
   init();
 };
 
 
 
+gpio_evaluatedSwitch::gpio_evaluatedSwitch( //optional parameters given
+    volatile uint8_t *reg_direction_declare, //DDRx
+    volatile uint8_t *reg_data_declare,     //PORTx
+    volatile uint8_t *reg_inputPin_declare, //PINx
+    uint8_t pin_declare,     //PB6 / 6
+    bool pullup_declare,
+    bool inverted_declare //default false (see hpp file)
+    ){
+  reg_direction = reg_direction_declare;
+  reg_data = reg_data_declare;
+  reg_inputPin = reg_inputPin_declare;
+  pin = pin_declare;
+  pullup = pullup_declare;
+  inverted = inverted_declare;
+
+  init();
+};
+
+
 
 void gpio_evaluatedSwitch::init(){
   *reg_direction &= ~(1 << pin); //define as input (unset bit)
-  *reg_data |= (1 << pin); //enable pullup
+  if (pullup == true){ //enable pullup if desired (default)
+    *reg_data |= (1 << pin); //enable pullup
+  }
 };
-
 
 
 
@@ -54,6 +74,7 @@ void gpio_evaluatedSwitch::handle(){  //Statemachine for debouncing and edge det
         if (time_delta(time_get(), timestampLow) > minOnMs){ //pin in same state long enough
           p_state = switchState::TRUE;
           state = true;
+          state_inverted = false;
           risingEdge = true;
           msReleased = time_delta(time_get(), timestampHigh); //calculate duration the button was released
         }
@@ -79,12 +100,30 @@ void gpio_evaluatedSwitch::handle(){  //Statemachine for debouncing and edge det
           p_state = switchState::FALSE;
           msPressed = time_delta(time_get(), timestampLow); //calculate duration the button was pressed
           state=false;
+          state_inverted=true;
           fallingEdge=true;
         }
       }else{
         p_state = switchState::TRUE;
       }
       break;
+  }
+
+
+  //change variables if switch is inverted
+  if (inverted == true){
+    //invert state
+    state = state_inverted; //FIXME is true at controller start for mintimeon (50ms)
+
+    //swap rising and falling edge
+    risingEdge_tmp = risingEdge;
+    risingEdge = fallingEdge;
+    fallingEdge = risingEdge_tmp;
+
+    //swap time Pressed and Released
+    msPressed_tmp = msPressed;
+    msPressed = msReleased;
+    msReleased = msPressed_tmp;
   }
 }
 
