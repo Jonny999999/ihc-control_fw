@@ -55,9 +55,6 @@ class gpio_evaluatedSwitch {
     uint32_t timestampHigh = 0;
     void init();
 
-    bool state_inverted = false;
-    bool risingEdge_tmp = risingEdge;
-    uint32_t msPressed_tmp = msPressed;
 };
 
 

@@ -17,7 +17,7 @@ extern "C" {
 
 class inputPin_class {
   public:
-  //evaluatedSwitch testButton(&PINB, PB6);
+    //evaluatedSwitch testButton(&PINB, PB6);
     volatile uint8_t *reg_direction; //DDRx - Data Direction Register (rw)
     volatile uint8_t *reg_data; //PORTx - Data Register (rw)
     volatile uint8_t *reg_inputPin; //PINx - Input Pin Address (ro)
@@ -28,7 +28,7 @@ class inputPin_class {
         volatile uint8_t *reg_data_declare,
         volatile uint8_t *reg_inputPin_declare,
         uint8_t pin_declare
-    ){ //constructor
+        ){ //constructor
       reg_direction = reg_direction_declare;
       reg_data = reg_data_declare;
       reg_inputPin = reg_inputPin_declare;
@@ -49,8 +49,8 @@ int main()
 {
   time_init();
 
-    //DDRB|=(1<<7); //PB7  define (Buzzer) as output
-    //PORTB|=(1<<6); //PB6 enable pull up
+  //DDRB|=(1<<7); //PB7  define (Buzzer) as output
+  //PORTB|=(1<<6); //PB6 enable pull up
 
 
   //===== define outputs =====
@@ -82,63 +82,73 @@ int main()
 
   while(1){
 
-
-  s2.handle();
-  s3.handle();
-  s4.handle();
-
-
-
-  // if(testButton.state == true){
-  //  //if ( !(PINB & (1 << 6)) ){ 
-  //  //
-  //  led.on();
-  // }else{
-  //   led.off();
-  // }
+    //run handle function for each switch TODO: loop over / run all switch instances automatically?
+    s2.handle();
+    s3.handle();
+    s4.handle();
 
 
 
-    //if(testButton.risingEdge && testButton.msReleased > 1000){
-    //  PORTB|=(1<<7); //buzzer an
-    //    _delay_ms(1000);
-    //  PORTB&=~(1<<7); //buzzer aus
-    //}
-    //if(testButton.risingEdge && testButton.msReleased > 5000){
-    //}
 
+    //testing button s2
     if (s2.state == true){
       k2.on();
-      led.on();
     }else{
       k2.off();
-      led.off();
     }
 
+
+    //testing button s3
     if (s3.state == true){
       k3.on();
     }else{
       k3.off();
     }
 
-    if (s4.state == true){
+    if (s3.risingEdge && s3.msReleased > 5000){
       buzzer.on();
-      k4.on();
-    }else{
+      _delay_ms(100);
       buzzer.off();
-      k4.off();
     }
 
-//    //blink
-//    led.on();
-//    //buzzer.on();
-//    _delay_ms(100);
-//    led.off();
-//    //buzzer.off();
-//    _delay_ms(100);
-//
+    if (s3.fallingEdge && s3.msPressed > 2000){
+      buzzer.on();
+      _delay_ms(500);
+      buzzer.off();
+    }
+
+
+    //testin button s4
+    if (s4.state == true){
+      led.on();
+      k4.on();
+    }else{
+      k4.off();
+      led.off();
+    }
+
+    if (s4.risingEdge && s4.msReleased > 5000){
+      buzzer.on();
+      _delay_ms(100);
+      buzzer.off();
+    }
+
+    if (s4.fallingEdge && s4.msPressed > 2000){
+      buzzer.on();
+      _delay_ms(500);
+      buzzer.off();
+    }
+
+    //    //blink
+    //    led.on();
+    //    //buzzer.on();
+    //    _delay_ms(100);
+    //    led.off();
+    //    //buzzer.off();
+    //    _delay_ms(100);
+    //
 
 
   }
 
-}
+  }
