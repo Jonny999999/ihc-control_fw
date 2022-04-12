@@ -13,36 +13,15 @@ extern "C" {
 
 #include "gpio_evaluateSwitch.hpp" 
 #include "gpio_output.hpp"
+#include "clock.hpp"
+
+//====================================
+//===== assign devices to relays =====
+//====================================
+#define LOW_BEAM k1
+#define HIGH_BEAM k2
 
 
-class inputPin_class {
-  public:
-    //evaluatedSwitch testButton(&PINB, PB6);
-    volatile uint8_t *reg_direction; //DDRx - Data Direction Register (rw)
-    volatile uint8_t *reg_data; //PORTx - Data Register (rw)
-    volatile uint8_t *reg_inputPin; //PINx - Input Pin Address (ro)
-    uint8_t pin;
-    bool pullup = true;
-    inputPin_class (
-        volatile uint8_t *reg_direction_declare,
-        volatile uint8_t *reg_data_declare,
-        volatile uint8_t *reg_inputPin_declare,
-        uint8_t pin_declare
-        ){ //constructor
-      reg_direction = reg_direction_declare;
-      reg_data = reg_data_declare;
-      reg_inputPin = reg_inputPin_declare;
-      pin = pin_declare;
-      init(); //initialize input pin (define as input, enable pullup) TODO case when pullup not wanted?
-    }
-
-  private:
-    void init(){
-      *reg_direction &= ~(1 << pin); //define as input (unset bit)
-      *reg_data |= (1 << pin); //enable pullup
-    }
-
-};
 
 
 int main()
@@ -53,7 +32,7 @@ int main()
   //PORTB|=(1<<6); //PB6 enable pull up
 
 
-  //===== define outputs =====
+  //===== define and configure outputs =====
   gpio_output led(&DDRD, &PORTD, PD7);
   gpio_output buzzer(&DDRD, &PORTD, PB6);
 
@@ -70,7 +49,7 @@ int main()
   gpio_output mos2(&DDRC, &PORTC, PC4);
 
 
-  //===== define inputs =====
+  //===== define and configure inputs =====
   gpio_evaluatedSwitch s4(&DDRB, &PORTB, &PINB, PB2, false, true); //no pullup, inverted
                                                                    //
                                                                    //
@@ -80,6 +59,11 @@ int main()
 
 
 
+  //create clock instance for generating a signal for blinkers
+  //clock blink(200, 100);
+  clock blink(2);
+
+
   while(1){
 
     //run handle function for each switch TODO: loop over / run all switch instances automatically?
@@ -87,13 +71,26 @@ int main()
     s3.handle();
     s4.handle();
 
+    //run handle function of clock object
+    blink.handle();
 
 
 
-    //testing button s2
+
+    //testing clock class with button s2 (blink led + relay)
     if (s2.state == true){
-      k2.on();
+      if (s2.risingEdge == true){
+        blink.setState(true); //force reset to true (alwas start with led on)
+      }
+      if (blink.state == true){
+        led.on();
+        k2.on();
+      }else{
+        led.off();
+        k2.off();
+      }
     }else{
+      led.off();
       k2.off();
     }
 
@@ -101,6 +98,9 @@ int main()
     //testing button s3
     if (s3.state == true){
       k3.on();
+      if(s3.risingEdge){ //increase blink frequency
+        blink.setFreq(blink.freq + 10);
+      }
     }else{
       k3.off();
     }
@@ -118,8 +118,11 @@ int main()
     }
 
 
-    //testin button s4
+    //testing button s4
     if (s4.state == true){
+      if (s4.risingEdge){ //decrease blink frequency
+        blink.setFreq(blink.freq - 10);
+      }
       led.on();
       k4.on();
     }else{
@@ -151,4 +154,4 @@ int main()
 
   }
 
-  }
+}
