@@ -14,6 +14,7 @@ extern "C" {
 #include "gpio_evaluateSwitch.hpp" 
 #include "gpio_output.hpp"
 #include "clock.hpp"
+#include "pulse.hpp"
 
 //====================================
 //===== assign devices to relays =====
@@ -66,9 +67,15 @@ int main()
 
 
 
+  //=========================================
+  //========= Create other objects ==========
+  //=========================================
   //create clock instance for generating a signal used for blinkers
   //clock blink(200, 100);
   clock blink(2);
+
+  //create pulse instance for generating pulses for buzzer without using _delay_ms() thus pausing the entire programm.
+  pulse beep(200, 100); //default msOn, msOff
 
 
 
@@ -79,6 +86,11 @@ int main()
     enum class lightState {OFF, ON, ON_TOGGLE};
     lightState highBeamState = lightState::OFF;
 
+
+
+  //======================================
+  //========= Start of main loop =========
+  //======================================
   while(1){
 
     //run handle function for each switch TODO: loop over / run all switch instances automatically?
@@ -94,6 +106,30 @@ int main()
     //run handle function of clock object
     blink.handle();
 
+    //run handle function of pulse object 
+    beep.handle();
+
+
+    //-----------------------------
+    //---------- Buzzer -----------
+    //-----------------------------
+    //apply state defined by pulse object beep to buzzer output
+    if (beep.state == true){
+      buzzer.on();
+    }else{
+      buzzer.off();
+    }
+    //buzzer can now be used with e.g.
+      //beep.trigger(3); //beep 3 times, default times (see constructor)
+      //beep.trigger(3, 1000, 200); //beep 3 times, 1s on 200ms off
+
+    //test buzzer using S2
+    if (sPB4.risingEdge == true){
+      beep.trigger(3, 300, 100); //beep 3 times, 1s on 200ms off
+      //beep.trigger(3);
+    }
+
+
 
     //-----------------------------
     //--------- Low Beam ----------
@@ -105,9 +141,10 @@ int main()
     }
 
 
-    //-----------------------------
+
+    //------------------------------
     //--------- High Beam ----------
-    //-----------------------------
+    //------------------------------
     switch (highBeamState){
       case lightState::OFF:
         if (S_HIGH_BEAM.risingEdge == true){ //only rising edge, otherwise will instantly turn on again when turining off with same switch
@@ -117,11 +154,9 @@ int main()
         break;
       case lightState::ON:
         if (S_HIGH_BEAM.state == true){
-          if (S_HIGH_BEAM.msPressed > 750 && S_LOW_BEAM.state == true){ //only able to toggle on if low beam is on
+          if (S_HIGH_BEAM.msPressed > 600 && S_LOW_BEAM.state == true){ //only able to toggle on if low beam is on
             highBeamState = lightState::ON_TOGGLE;
-            buzzer.on();
-            _delay_ms(100); //TODO dont use delay function anywhere => create beep function (buzzer handle)
-            buzzer.off();
+            beep.trigger(2, 500, 100);
           }
         }else{ //switch off
           highBeamState = lightState::OFF;
