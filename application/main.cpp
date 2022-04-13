@@ -21,7 +21,8 @@ extern "C" {
 #define K_LOW_BEAM k1
 #define K_HIGH_BEAM k2
 
-#define S_HIGH_BEAM sPB3 //s3
+#define S_LOW_BEAM sPB3 //s3
+#define S_HIGH_BEAM sPB2 //s4
 
 
 
@@ -94,7 +95,19 @@ int main()
     blink.handle();
 
 
+    //-----------------------------
+    //--------- Low Beam ----------
+    //-----------------------------
+    if (S_LOW_BEAM.state == true){
+      K_LOW_BEAM.on();
+    }else{
+      K_LOW_BEAM.off();
+    }
 
+
+    //-----------------------------
+    //--------- High Beam ----------
+    //-----------------------------
     switch (highBeamState){
       case lightState::OFF:
         if (S_HIGH_BEAM.risingEdge == true){ //only rising edge, otherwise will instantly turn on again when turining off with same switch
@@ -104,7 +117,7 @@ int main()
         break;
       case lightState::ON:
         if (S_HIGH_BEAM.state == true){
-          if (S_HIGH_BEAM.msPressed > 750){
+          if (S_HIGH_BEAM.msPressed > 750 && S_LOW_BEAM.state == true){ //only able to toggle on if low beam is on
             highBeamState = lightState::ON_TOGGLE;
             buzzer.on();
             _delay_ms(100); //TODO dont use delay function anywhere => create beep function (buzzer handle)
@@ -116,7 +129,7 @@ int main()
         }
         break;
       case lightState::ON_TOGGLE:
-        if (S_HIGH_BEAM.risingEdge == true){
+        if (S_HIGH_BEAM.risingEdge == true || S_LOW_BEAM.state == false){ //also switch off when low beam is off
           highBeamState = lightState::OFF;
           K_HIGH_BEAM.off();
         }
