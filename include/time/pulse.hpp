@@ -13,8 +13,8 @@ class pulse {
     pulse (uint32_t msOnDefault_declare, uint32_t msOffDefault_declare);
     uint32_t msOnDefault;
     uint32_t msOffDefault;
-    uint32_t msOn;
-    uint32_t msOff;
+    uint32_t msOn = 10;
+    uint32_t msOff = 10;
 
     //--- functions ---
     void trigger (uint8_t count_in, uint32_t msOn_in, uint32_t msOff_in); //trigger impulses with custom intervalls/duration
@@ -26,8 +26,8 @@ class pulse {
     bool state = false;
 
   private:
-    uint8_t count;
-    uint32_t timestampOn;
-    uint32_t timestampOff;
+    uint8_t count = 0;
+    uint32_t timestampOn = 0;
+    uint32_t timestampOff = 0;
 };
 
