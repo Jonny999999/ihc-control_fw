@@ -16,14 +16,40 @@ extern "C" {
 #include "clock.hpp"
 #include "pulse.hpp"
 
-//====================================
-//===== assign devices to relays =====
-//====================================
-#define K_LOW_BEAM k1
-#define K_HIGH_BEAM k2
 
-#define S_LOW_BEAM sPB3 //s3
-#define S_HIGH_BEAM sPB2 //s4
+//=====================================
+//===== assign devices to outputs =====
+//=====================================
+//--- 8x relay outputs ---
+#define OUT_BLINK_LEFT k1
+#define OUT_BLINK_RIGHT k2
+#define OUT_PARKING_LIGHT k3
+//#define OUT_ k4
+//#define OUT_ k5
+//#define OUT_ k6
+#define OUT_HIGH_BEAM k7
+#define OUT_LOW_BEAM k8
+
+//--- 2x mosfet outputs ---
+#define OUT_HORN PC4
+//#define OUT_ PC3
+
+
+//====================================
+//===== assign devices to inputs =====
+//====================================
+//--- 2x inputs (switches to 12V) ---
+#define S_LOW_BEAM sPB2 //s3
+#define S_BRAKE sPB1
+//#define S_ sPB0
+
+//--- 4x inpts (switches to GND) ---
+#define S_HIGH_BEAM sPB3
+#define S_HORN sPB4
+#define S_BLINK_LEFT sPC0
+#define S_BLINK_RIGHT sPC1
+#define S_WARNING_LIGHTS sPC2
+
 
 
 
@@ -135,9 +161,9 @@ int main()
     //--------- Low Beam ----------
     //-----------------------------
     if (S_LOW_BEAM.state == true){
-      K_LOW_BEAM.on();
+      OUT_LOW_BEAM.on();
     }else{
-      K_LOW_BEAM.off();
+      OUT_LOW_BEAM.off();
     }
 
 
@@ -148,7 +174,7 @@ int main()
     switch (highBeamState){
       case lightState::OFF:
         if (S_HIGH_BEAM.risingEdge == true){ //only rising edge, otherwise will instantly turn on again when turining off with same switch
-          K_HIGH_BEAM.on();
+          OUT_HIGH_BEAM.on();
           highBeamState = lightState::ON;
         }
         break;
@@ -160,13 +186,13 @@ int main()
           }
         }else{ //switch off
           highBeamState = lightState::OFF;
-          K_HIGH_BEAM.off();
+          OUT_HIGH_BEAM.off();
         }
         break;
       case lightState::ON_TOGGLE:
         if (S_HIGH_BEAM.risingEdge == true || S_LOW_BEAM.state == false){ //also switch off when low beam is off
           highBeamState = lightState::OFF;
-          K_HIGH_BEAM.off();
+          OUT_HIGH_BEAM.off();
         }
         break;
     }
