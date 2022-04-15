@@ -34,19 +34,21 @@ note: Switch parking light directly switches lights since controller is off in t
 ## Outputs
 ### Relay outputs (separate terminals right)
 | Pin | Object | Variable | Description |
+| --- | --- | --- | --- |
 | PD5 | k1 | OUT_BLINK_LEFT | toggle switch blinker left in dashboard |
 | PB7 | k2 | OUT_BLINK_RIGHT | toggle switch blinker right in dashboard |
 | PB6 | k3 | OUT_PARKING_LIGHT | ??? necessary? can be switched directly |
-| PB4 | k4 | | |
-| PD3 | k5 | | |
+| PB4 | k4 | | free |
+| PD3 | k5 | | free |
 | PD2 | k6 | ??? | free for worklight? |
 | PD1 | k7 | OUT_HIGH_BEAM | High beam in front |
 | PD0 | k8 | OUT_LOW_BEAM | Low beam in front |
 
 ### Mosfet outputs (Terminal bottom middle)
 | Pin | Object | Variable | Description |
+| --- | --- | --- | --- |
 | PC4 | mos1 | OUT_HORN | Horn can be switched with mosfet (2 cables max ~4A) |
-| PC3 | mos2 | | |
+| PC3 | mos2 | | free |
 
 
 
