@@ -31,8 +31,8 @@ extern "C" {
 #define OUT_LOW_BEAM k8
 
 //--- 2x mosfet outputs ---
-#define OUT_HORN PC4
-//#define OUT_ PC3
+#define OUT_HORN mos1
+//#define OUT_ mos2
 
 
 //====================================
@@ -87,9 +87,9 @@ int main()
                                                                      //
   gpio_evaluatedSwitch sPB3(&DDRB, &PORTB, &PINB, PB3); //pullup true, inverted false (bottom left 1, switch to GND)
   gpio_evaluatedSwitch sPB4(&DDRB, &PORTB, &PINB, PB4); //pullup true, inverted false (bottom left 2, switch to GND)
-  gpio_evaluatedSwitch sPC0(&DDRB, &PORTC, &PINC, PC0); //pullup true, inverted false (bottom left 3, switch to GND)
-  gpio_evaluatedSwitch sPC1(&DDRB, &PORTC, &PINC, PC1); //pullup true, inverted false (bottom left 4, switch to GND)
-  gpio_evaluatedSwitch sPC2(&DDRB, &PORTC, &PINC, PC2); //pullup true, inverted false (bottom left 5, switch to GND)
+  gpio_evaluatedSwitch sPC0(&DDRC, &PORTC, &PINC, PC0); //pullup true, inverted false (bottom left 3, switch to GND)
+  gpio_evaluatedSwitch sPC1(&DDRC, &PORTC, &PINC, PC1); //pullup true, inverted false (bottom left 4, switch to GND)
+  gpio_evaluatedSwitch sPC2(&DDRC, &PORTC, &PINC, PC2); //pullup true, inverted false (bottom left 5, switch to GND)
 
 
 
@@ -131,6 +131,10 @@ int main()
 
     //run handle function of clock object
     blink.handle();
+    //reset blinking clock
+    if ( S_BLINK_LEFT.risingEdge || S_BLINK_RIGHT.risingEdge || S_WARNING_LIGHTS.risingEdge ){
+      blink.setState(true); //force clock to true state (for blinkers to be immediately on after switching on, then blinking)
+    }
 
     //run handle function of pulse object 
     beep.handle();
@@ -149,12 +153,6 @@ int main()
       //beep.trigger(3); //beep 3 times, default times (see constructor)
       //beep.trigger(3, 1000, 200); //beep 3 times, 1s on 200ms off
 
-    //test buzzer using S2
-    if (sPB4.risingEdge == true){
-      beep.trigger(3, 300, 100); //beep 3 times, 1s on 200ms off
-      //beep.trigger(3);
-    }
-
 
 
     //-----------------------------
@@ -162,8 +160,10 @@ int main()
     //-----------------------------
     if (S_LOW_BEAM.state == true){
       OUT_LOW_BEAM.on();
+      OUT_PARKING_LIGHT.on();
     }else{
       OUT_LOW_BEAM.off();
+      OUT_PARKING_LIGHT.off();
     }
 
 
@@ -196,6 +196,51 @@ int main()
         }
         break;
     }
+
+
+
+    //-----------------------------
+    //----------- Horn ------------
+    //-----------------------------
+    if (S_HORN.state == true){
+      OUT_HORN.on();
+    }else{
+      OUT_HORN.off();
+    }
+
+
+
+    //----------------------------------------------
+    //--------------- Blinker left -----------------
+    //--- Brake light, Warning light, Blink left ---
+    //----------------------------------------------
+    if 
+      (
+       ( S_BRAKE.state && !S_BLINK_LEFT.state && !S_WARNING_LIGHTS.state ) //condition for brake light
+       ||
+       ( (S_BLINK_LEFT.state || S_WARNING_LIGHTS.state) && blink.state ) //condition for blinking (Warning lights, blink left)
+      ){
+        OUT_BLINK_LEFT.on();
+      }else{
+        OUT_BLINK_LEFT.off();
+      }
+
+
+
+    //----------------------------------------------
+    //--------------- Blinker right ----------------
+    //--- Brake light, Warning light, Blink left ---
+    //----------------------------------------------
+    if 
+      (
+       ( S_BRAKE.state && !S_BLINK_RIGHT.state && !S_WARNING_LIGHTS.state ) //condition for brake light
+       ||
+       ( (S_BLINK_RIGHT.state || S_WARNING_LIGHTS.state) && blink.state ) //condition for blinking (Warning lights, blink right)
+      ){
+        OUT_BLINK_RIGHT.on();
+      }else{
+        OUT_BLINK_RIGHT.off();
+      }
 
 
 
