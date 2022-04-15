@@ -4,6 +4,7 @@ add_library(
     gpio
     gpio_evaluateSwitch.cpp
     gpio_output.cpp
+    a2d.c
     )
 
 target_link_libraries(
