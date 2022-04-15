@@ -112,6 +112,9 @@ int main()
     enum class lightState {OFF, ON, ON_TOGGLE};
     lightState highBeamState = lightState::OFF;
 
+    //blink
+    uint32_t timestampBlinkStart = 0;
+
 
 
   //======================================
@@ -131,13 +134,10 @@ int main()
 
     //run handle function of clock object
     blink.handle();
-    //reset blinking clock
-    if ( S_BLINK_LEFT.risingEdge || S_BLINK_RIGHT.risingEdge || S_WARNING_LIGHTS.risingEdge ){
-      blink.setState(true); //force clock to true state (for blinkers to be immediately on after switching on, then blinking)
-    }
 
     //run handle function of pulse object 
     beep.handle();
+
 
 
     //-----------------------------
@@ -210,20 +210,38 @@ int main()
 
 
 
+    //----------------------------------
+    //-------- Blinker general ---------
+    //----------------------------------
+    //reset blinking clock
+    if ( S_BLINK_LEFT.risingEdge || S_BLINK_RIGHT.risingEdge || S_WARNING_LIGHTS.risingEdge ){
+      blink.setState(true); //force clock to true state (for blinkers to be immediately on after switching on, then blinking)
+    }
+    //reset timestamp when blinking starts (for actions after certain time blinking)
+    if ( S_BLINK_LEFT.risingEdge || S_BLINK_RIGHT.risingEdge){
+      timestampBlinkStart = time_get();
+    }
+
+
+
     //----------------------------------------------
     //--------------- Blinker left -----------------
     //--- Brake light, Warning light, Blink left ---
     //----------------------------------------------
-    if 
-      (
-       ( S_BRAKE.state && !S_BLINK_LEFT.state && !S_WARNING_LIGHTS.state ) //condition for brake light
-       ||
-       ( (S_BLINK_LEFT.state || S_WARNING_LIGHTS.state) && blink.state ) //condition for blinking (Warning lights, blink left)
-      ){
-        OUT_BLINK_LEFT.on();
-      }else{
-        OUT_BLINK_LEFT.off();
+    if ( (S_BRAKE.state && !S_BLINK_LEFT.state && !S_WARNING_LIGHTS.state) //condition for brake light
+        || (S_WARNING_LIGHTS.state && blink.state) ){ //condition for warning light
+      OUT_BLINK_LEFT.on();
+
+    }else if ( S_BLINK_LEFT.state  && blink.state ){ //condition for blinking left
+      OUT_BLINK_LEFT.on();
+      //start beeping when blinking a certain time already
+      if ( time_delta(time_get(), timestampBlinkStart) > 5000 && blink.risingEdge){
+        beep.trigger(2, 100, 80);
       }
+
+    }else{
+      OUT_BLINK_LEFT.off();
+    }
 
 
 
@@ -231,16 +249,20 @@ int main()
     //--------------- Blinker right ----------------
     //--- Brake light, Warning light, Blink left ---
     //----------------------------------------------
-    if 
-      (
-       ( S_BRAKE.state && !S_BLINK_RIGHT.state && !S_WARNING_LIGHTS.state ) //condition for brake light
-       ||
-       ( (S_BLINK_RIGHT.state || S_WARNING_LIGHTS.state) && blink.state ) //condition for blinking (Warning lights, blink right)
-      ){
-        OUT_BLINK_RIGHT.on();
-      }else{
-        OUT_BLINK_RIGHT.off();
+    if ( (S_BRAKE.state && !S_BLINK_RIGHT.state && !S_WARNING_LIGHTS.state) //condition for brake light
+        || (S_WARNING_LIGHTS.state && blink.state) ){ //condition for warning light
+      OUT_BLINK_RIGHT.on();
+
+    }else if ( S_BLINK_RIGHT.state  && blink.state ){ //condition for blinking left
+      OUT_BLINK_LEFT.on();
+      //start beeping when blinking a certain time already
+      if ( time_delta(time_get(), timestampBlinkStart) > 5000 && blink.risingEdge){
+        beep.trigger(2, 100, 80);
       }
+
+    }else{
+      OUT_BLINK_RIGHT.off();
+    }
 
 
 
