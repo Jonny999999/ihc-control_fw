@@ -24,6 +24,8 @@ class clock {
 
     //--- output ---
     bool state = false;
+    bool risingEdge = false;
+    bool fallingEdge = false;
     float freq = 0; //read only, change using setFreq()
 
   private:
