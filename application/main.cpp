@@ -9,6 +9,7 @@ extern "C" {
 #include <math.h>
 
 #include "time.h"
+#include "a2d.h"
 }
 
 #include "gpio_evaluateSwitch.hpp" 
@@ -105,6 +106,7 @@ int main()
 
 
 
+
   //======================================
   //======= variable declarations ========
   //======================================
@@ -115,12 +117,18 @@ int main()
     //blink
     uint32_t timestampBlinkStart = 0;
 
+    //input voltage
+    uint32_t slowLoopLastRun = 0;
+    uint16_t adcValue = 0;
+    float inputVoltage = 0;
 
 
   //======================================
   //========= Start of main loop =========
   //======================================
-  while(1){
+    while(1){
+
+
 
     //run handle function for each switch TODO: loop over / run all switch instances automatically?
     sPB2.handle();
@@ -137,6 +145,30 @@ int main()
 
     //run handle function of pulse object 
     beep.handle();
+
+
+
+    //------------------------------------
+    //------ Low voltage detection -------
+    //------------------------------------
+    //slow loop
+      if (time_delta(time_get(), slowLoopLastRun) > 10000){
+        slowLoopLastRun = time_get();
+
+        //measure input voltage
+        adcValue = ReadChannel(5); //read ADC channel 5 (PC5)
+        inputVoltage = (float)adcValue / 1024 * 5 * 3.311; //scale adc value to adc voltage, scale adc voltage to input voltate (voltage divider)
+        //beep.trigger((int)inputVoltage, 50, 100); //debug: output beep for each volt
+        //thresholds, alerts
+        if (inputVoltage < 10.6){ //critical
+          beep.trigger(10, 200, 100);
+        }else if(inputVoltage < 11){ //0%
+          beep.trigger(4, 200, 200);
+        }else if(inputVoltage < 11.8){ //<25%
+          beep.trigger(1, 80, 100);
+        }else{
+        }
+      }
 
 
 
