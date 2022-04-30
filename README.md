@@ -54,10 +54,10 @@ note: Switch parking light directly switches lights since controller is off in t
 ### Relay outputs (separate terminals right)
 | Pin | Object | Variable | Description |
 | --- | --- | --- | --- |
-| PD5 | k1 | OUT_BLINK_LEFT | toggle switch blinker left in dashboard |
-| PB7 | k2 | OUT_BLINK_RIGHT | toggle switch blinker right in dashboard |
-| PB6 | k3 | OUT_PARKING_LIGHT | ??? necessary? can be switched directly |
-| PB4 | k4 | | free |
+| PD5 | k1 | OUT_BLINK_LEFT | blinker rear + connector |
+| PB7 | k2 | OUT_BLINK_RIGHT | blinker rear + connector |
+| PB6 | k3 | OUT_BLINK_LEFT_FRONT | front blinker only |
+| PB4 | k4 | OUT_BLINK_RIGHT_FRONT | front blinker only |
 | PD3 | k5 | | free |
 | PD2 | k6 | ??? | free for worklight? |
 | PD1 | k7 | OUT_HIGH_BEAM | High beam in front |

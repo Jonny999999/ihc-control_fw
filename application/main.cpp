@@ -24,8 +24,8 @@ extern "C" {
 //--- 8x relay outputs ---
 #define OUT_BLINK_LEFT k1
 #define OUT_BLINK_RIGHT k2
-#define OUT_PARKING_LIGHT k3
-//#define OUT_ k4
+#define OUT_BLINK_LEFT_FRONT k3
+#define OUT_BLINK_RIGHT_FRONT k4
 //#define OUT_ k5
 //#define OUT_ k6
 #define OUT_HIGH_BEAM k7
@@ -192,11 +192,10 @@ int main()
     //-----------------------------
     if (S_LOW_BEAM.state == true){
       OUT_LOW_BEAM.on();
-      OUT_PARKING_LIGHT.on();
     }else{
       OUT_LOW_BEAM.off();
-      OUT_PARKING_LIGHT.off();
     }
+    //Note: parking light is switched by key switch directly (only controlling 2x front lights)
 
 
 
@@ -254,6 +253,15 @@ int main()
       timestampBlinkStart = time_get();
     }
 
+    //start beeping when blinking a certain time already (not when using warning lights)
+    if ( (S_BLINK_LEFT.state || S_BLINK_RIGHT.state) 
+            && !S_WARNING_LIGHTS.state 
+            && time_delta(time_get(), timestampBlinkStart) > 5000 
+            && blink.risingEdge
+       ){
+        beep.trigger(2, 100, 80);
+    }
+
 
 
     //----------------------------------------------
@@ -262,17 +270,15 @@ int main()
     //----------------------------------------------
     if ( (S_BRAKE.state && !S_BLINK_LEFT.state && !S_WARNING_LIGHTS.state) //condition for brake light
         || (S_WARNING_LIGHTS.state && blink.state) ){ //condition for warning light
-      OUT_BLINK_LEFT.on();
+      OUT_BLINK_LEFT.on(); //only use rear blinkers as brake lights
 
-    }else if ( S_BLINK_LEFT.state  && blink.state ){ //condition for blinking left
+    }else if ( (S_BLINK_LEFT.state || S_WARNING_LIGHTS.state)  && blink.state ){ //condition for blinking right and warning light
       OUT_BLINK_LEFT.on();
-      //start beeping when blinking a certain time already
-      if ( time_delta(time_get(), timestampBlinkStart) > 5000 && blink.risingEdge){
-        beep.trigger(2, 100, 80);
-      }
+      OUT_BLINK_LEFT_FRONT.on(); //use rear and front blinkers
 
     }else{
       OUT_BLINK_LEFT.off();
+      OUT_BLINK_LEFT_FRONT.off();
     }
 
 
@@ -283,17 +289,15 @@ int main()
     //----------------------------------------------
     if ( (S_BRAKE.state && !S_BLINK_RIGHT.state && !S_WARNING_LIGHTS.state) //condition for brake light
         || (S_WARNING_LIGHTS.state && blink.state) ){ //condition for warning light
-      OUT_BLINK_RIGHT.on();
+      OUT_BLINK_RIGHT.on(); //only use rear blinkers as brake lights
 
-    }else if ( S_BLINK_RIGHT.state  && blink.state ){ //condition for blinking left
-      OUT_BLINK_LEFT.on();
-      //start beeping when blinking a certain time already
-      if ( time_delta(time_get(), timestampBlinkStart) > 5000 && blink.risingEdge){
-        beep.trigger(2, 100, 80);
-      }
+    }else if ( (S_BLINK_RIGHT.state || S_WARNING_LIGHTS.state)  && blink.state ){ //condition for blinking right and warning light
+      OUT_BLINK_RIGHT.on();
+      OUT_BLINK_RIGHT_FRONT.on(); //use rear and front blinkers
 
     }else{
       OUT_BLINK_RIGHT.off();
+      OUT_BLINK_RIGHT_FRONT.off();
     }
 
 
