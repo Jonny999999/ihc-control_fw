@@ -33,7 +33,7 @@ extern "C" {
 
 //--- 2x mosfet outputs ---
 #define OUT_HORN mos1
-//#define OUT_ mos2
+#define OUT_CONTROL_LAMP mos2
 
 
 //====================================
@@ -123,6 +123,14 @@ int main()
     float inputVoltage = 0;
 
 
+    //--------------------------------
+    //-------- Startup tasks ---------
+    //--------------------------------
+    //beep 3 times
+    beep.trigger(3, 80, 50);
+
+
+
   //======================================
   //========= Start of main loop =========
   //======================================
@@ -172,14 +180,17 @@ int main()
 
 
 
-    //-----------------------------
-    //---------- Buzzer -----------
-    //-----------------------------
-    //apply state defined by pulse object beep to buzzer output
+    //-------------------------------------
+    //------- Buzzer, Control-lamp --------
+    //-------------------------------------
+    //apply state defined by pulse object beep to buzzer and control-lamp output
+    //TODO Add way to disable buzzer (e.g. when switch pressed during startup)
     if (beep.state == true){
       buzzer.on();
+      OUT_CONTROL_LAMP.on();
     }else{
       buzzer.off();
+      OUT_CONTROL_LAMP.off();
     }
     //buzzer can now be used with e.g.
       //beep.trigger(3); //beep 3 times, default times (see constructor)

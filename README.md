@@ -29,7 +29,7 @@ sudo make hello_upload
 
 # Pin assignment
 ## Inputs
-### terminal top left (3x switch to 12V input)
+### terminal TOP left (3x switch to 12V input)
 
 | Pin | Object | Variable | Description |
 | --- | --- | --- | --- |
@@ -66,8 +66,8 @@ note: Switch parking light directly switches lights since controller is off in t
 ### Mosfet outputs (Terminal bottom middle)
 | Pin | Object | Variable | Description |
 | --- | --- | --- | --- |
-| PC4 | mos1 | OUT_HORN | Horn can be switched with mosfet (2 cables max ~4A) |
-| PC3 | mos2 | | free |
+| PC4 | mos1 | OUT_HORN | Horn can be switched with mosfet (2 cables and measured max ~4A) |
+| PC3 | mos2 | OUT_CONTROL_LAMP | Control lamp in dashboard originally unused (intended "gearbox oil pressure") |
 
 
 
