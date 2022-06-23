@@ -27,7 +27,7 @@ extern "C" {
 #define OUT_BLINK_LEFT_FRONT k3
 #define OUT_BLINK_RIGHT_FRONT k4
 //#define OUT_ k5
-//#define OUT_ k6
+#define OUT_WORK_LIGHT k6
 #define OUT_HIGH_BEAM k7
 #define OUT_LOW_BEAM k8
 
@@ -42,7 +42,7 @@ extern "C" {
 //--- 2x inputs (switches to 12V) ---
 #define S_LOW_BEAM sPB2 //s3
 #define S_BRAKE sPB1
-//#define S_ sPB0
+#define S_WORK_LIGHT sPB0
 
 //--- 4x inpts (switches to GND) ---
 #define S_HIGH_BEAM sPB3
@@ -79,7 +79,7 @@ int main()
   gpio_output k8(&DDRD, &PORTD, PD0);
 
   gpio_output mos1(&DDRC, &PORTC, PC4);
-  gpio_output mos2(&DDRC, &PORTC, PC4);
+  gpio_output mos2(&DDRC, &PORTC, PC3);
 
   //===== define and configure inputs (create objects) =====
   gpio_evaluatedSwitch sPB2(&DDRB, &PORTB, &PINB, PB2, false, true); //no pullup, inverted (top left 1, switch to 12V)
@@ -195,6 +195,17 @@ int main()
     //buzzer can now be used with e.g.
       //beep.trigger(3); //beep 3 times, default times (see constructor)
       //beep.trigger(3, 1000, 200); //beep 3 times, 1s on 200ms off
+
+
+
+    //-----------------------------
+    //-------- Work light ---------
+    //-----------------------------
+    if (S_WORK_LIGHT.state == true){
+      OUT_WORK_LIGHT.on();
+    }else{
+      OUT_WORK_LIGHT.off();
+    }
 
 
 
