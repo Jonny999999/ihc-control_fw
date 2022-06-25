@@ -12,7 +12,7 @@ class gpio_output {
         ); //constructor
 
     //--- output ---
-    bool state;
+    bool state = false;
     //uint32_t msOn; TODO: needs function to calculate time e.g. uint32_t output::getMsOn()
     //uint32_t msOff;
     uint32_t timestampOn;

@@ -29,6 +29,7 @@ void gpio_output::init(){
 void gpio_output::on(){
   *reg_data|=(1 << pin);  //turn pin on
   timestampOn = time_get();
+  state = true;
 }
 
 
@@ -36,4 +37,5 @@ void gpio_output::on(){
 void gpio_output::off(){
   *reg_data&=~(1 << pin);  //turn pin off
   timestampOff = time_get();
+  state = false;
 }
