@@ -212,7 +212,7 @@ int main()
     //-----------------------------
     //--------- Low Beam ----------
     //-----------------------------
-    if (S_LOW_BEAM.state == true){
+    if (S_LOW_BEAM.state == true && OUT_HIGH_BEAM.state == false){ //turn low beam of if high beam is on
       OUT_LOW_BEAM.on();
     }else{
       OUT_LOW_BEAM.off();
@@ -243,7 +243,7 @@ int main()
         }
         break;
       case lightState::ON_TOGGLE:
-        if (S_HIGH_BEAM.risingEdge == true || S_LOW_BEAM.state == false){ //also switch off when low beam is off
+        if (S_HIGH_BEAM.risingEdge == true || S_LOW_BEAM.state == false){ //also switch off when low beam is switched off
           highBeamState = lightState::OFF;
           OUT_HIGH_BEAM.off();
         }
@@ -290,8 +290,7 @@ int main()
     //--------------- Blinker left -----------------
     //--- Brake light, Warning light, Blink left ---
     //----------------------------------------------
-    if ( (S_BRAKE.state && !S_BLINK_LEFT.state && !S_WARNING_LIGHTS.state) //condition for brake light
-        || (S_WARNING_LIGHTS.state && blink.state) ){ //condition for warning light
+    if (S_BRAKE.state && !S_BLINK_LEFT.state && !S_WARNING_LIGHTS.state){ //condition for brake light
       OUT_BLINK_LEFT.on(); //only use rear blinkers as brake lights
 
     }else if ( (S_BLINK_LEFT.state || S_WARNING_LIGHTS.state)  && blink.state ){ //condition for blinking right and warning light
@@ -309,8 +308,7 @@ int main()
     //--------------- Blinker right ----------------
     //--- Brake light, Warning light, Blink left ---
     //----------------------------------------------
-    if ( (S_BRAKE.state && !S_BLINK_RIGHT.state && !S_WARNING_LIGHTS.state) //condition for brake light
-        || (S_WARNING_LIGHTS.state && blink.state) ){ //condition for warning light
+    if (S_BRAKE.state && !S_BLINK_RIGHT.state && !S_WARNING_LIGHTS.state) {//condition for brake light
       OUT_BLINK_RIGHT.on(); //only use rear blinkers as brake lights
 
     }else if ( (S_BLINK_RIGHT.state || S_WARNING_LIGHTS.state)  && blink.state ){ //condition for blinking right and warning light
