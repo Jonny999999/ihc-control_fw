@@ -49,8 +49,9 @@ class gpio_evaluatedSwitch {
     bool pullup;
     bool inverted;
 
-    enum class switchState {TRUE, FALSE, LOW, HIGH};
+    enum class switchState {TRUE, FALSE, INACTIVE, ACTIVE};
     switchState p_state = switchState::FALSE;
+    bool inputState = false;
     uint32_t timestampLow = 0;
     uint32_t timestampHigh = 0;
     void init();
