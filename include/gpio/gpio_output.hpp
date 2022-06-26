@@ -21,16 +21,17 @@ class gpio_output {
     //--- functions ---
     void on();
     void off();
+    void setState(bool state);
 
   private:
     //--- pin desciption ---
     volatile uint8_t *reg_direction; //DDRx - Data Direction Register (rw)
     volatile uint8_t *reg_data; //PORTx - Data Register (rw)
     volatile uint8_t *reg_inputPin; //PINx - Input Pin Address (ro)
+
+    //--- variables ---
     uint8_t pin;
 
-    //--- process data ---
-    
     //--- functions ---
     void init();
 };

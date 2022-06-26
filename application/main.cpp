@@ -136,8 +136,6 @@ int main()
   //======================================
     while(1){
 
-
-
     //run handle function for each switch TODO: loop over / run all switch instances automatically?
     sPB2.handle();
     sPB1.handle();
@@ -183,16 +181,12 @@ int main()
     //-------------------------------------
     //------- Buzzer, Control-lamp --------
     //-------------------------------------
-    //apply state defined by pulse object beep to buzzer and control-lamp output
     //TODO Add way to disable buzzer (e.g. when switch pressed during startup)
-    if (beep.state == true){
-      buzzer.on();
-      OUT_CONTROL_LAMP.on();
-    }else{
-      buzzer.off();
-      OUT_CONTROL_LAMP.off();
-    }
-    //buzzer can now be used with e.g.
+    //TODO Use control-lamp for different things than buzzer? with a separate pulse object
+    //apply state defined by pulse object beep to buzzer and control-lamp output
+    buzzer.setState(beep.state);
+    OUT_CONTROL_LAMP.setState(beep.state);
+    //buzzer/control lamp can now be used with e.g.
       //beep.trigger(3); //beep 3 times, default times (see constructor)
       //beep.trigger(3, 1000, 200); //beep 3 times, 1s on 200ms off
 
@@ -201,22 +195,16 @@ int main()
     //-----------------------------
     //-------- Work light ---------
     //-----------------------------
-    if (S_WORK_LIGHT.state == true){
-      OUT_WORK_LIGHT.on();
-    }else{
-      OUT_WORK_LIGHT.off();
-    }
+    //set output to same state as input switch
+    OUT_WORK_LIGHT.setState(S_WORK_LIGHT.state);
 
 
 
     //-----------------------------
     //--------- Low Beam ----------
     //-----------------------------
-    if (S_LOW_BEAM.state == true && OUT_HIGH_BEAM.state == false){ //turn low beam of if high beam is on
-      OUT_LOW_BEAM.on();
-    }else{
-      OUT_LOW_BEAM.off();
-    }
+    //set output pin to the result of the following condition
+    OUT_LOW_BEAM.setState(S_LOW_BEAM.state == true && OUT_HIGH_BEAM.state == false); //turn low beam off if high beam is on (otherwise lamp would overheat)
     //Note: parking light is switched by key switch directly (only controlling 2x front lights)
 
 
@@ -255,11 +243,8 @@ int main()
     //-----------------------------
     //----------- Horn ------------
     //-----------------------------
-    if (S_HORN.state == true){
-      OUT_HORN.on();
-    }else{
-      OUT_HORN.off();
-    }
+    //set output to same state as input switch
+    OUT_HORN.setState(S_HORN.state);
 
 
 

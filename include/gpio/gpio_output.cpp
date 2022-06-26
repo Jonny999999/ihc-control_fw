@@ -39,3 +39,13 @@ void gpio_output::off(){
   timestampOff = time_get();
   state = false;
 }
+
+
+//set state of pin
+void gpio_output::setState(bool state){
+    if (state == true){
+        on();
+    } else {
+        off();
+    }
+}
