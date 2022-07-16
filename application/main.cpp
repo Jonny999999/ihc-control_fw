@@ -277,6 +277,7 @@ int main()
     //----------------------------------------------
     if (S_BRAKE.state && !S_BLINK_LEFT.state && !S_WARNING_LIGHTS.state){ //condition for brake light
       OUT_BLINK_LEFT.on(); //only use rear blinkers as brake lights
+      OUT_BLINK_LEFT_FRONT.off();
 
     }else if ( (S_BLINK_LEFT.state || S_WARNING_LIGHTS.state)  && blink.state ){ //condition for blinking right and warning light
       OUT_BLINK_LEFT.on();
@@ -295,6 +296,7 @@ int main()
     //----------------------------------------------
     if (S_BRAKE.state && !S_BLINK_RIGHT.state && !S_WARNING_LIGHTS.state) {//condition for brake light
       OUT_BLINK_RIGHT.on(); //only use rear blinkers as brake lights
+      OUT_BLINK_RIGHT_FRONT.off();
 
     }else if ( (S_BLINK_RIGHT.state || S_WARNING_LIGHTS.state)  && blink.state ){ //condition for blinking right and warning light
       OUT_BLINK_RIGHT.on();
