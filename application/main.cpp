@@ -184,7 +184,7 @@ int main()
     //TODO Add way to disable buzzer (e.g. when switch pressed during startup)
     //TODO Use control-lamp for different things than buzzer? with a separate pulse object
     //apply state defined by pulse object beep to buzzer and control-lamp output
-    buzzer.setState(beep.state);
+    //buzzer.setState(beep.state);
     OUT_CONTROL_LAMP.setState(beep.state);
     //buzzer/control lamp can now be used with e.g.
       //beep.trigger(3); //beep 3 times, default times (see constructor)
