@@ -17,10 +17,14 @@ extern "C" {
 #include "clock.hpp"
 #include "pulse.hpp"
 
+
 //============================
 //========== config ==========
 //============================
 //#define SILENT //disable buzzer
+#define VOLTAGE_CHECK_INTERVAL 15000 //low voltage check (ms)
+#define VOLTAGE_CHECK_INITIAL 1200 //time first check
+
 
 //=====================================
 //===== assign devices to outputs =====
@@ -122,9 +126,10 @@ int main()
     uint32_t timestampBlinkStart = 0;
 
     //input voltage
-    uint32_t slowLoopLastRun = 0;
+    uint32_t slowLoopLastRun = 0; //first voltage check 1.5s after startup)
     uint16_t adcValue = 0;
     float inputVoltage = 0;
+	uint32_t nextCheckInterval = VOLTAGE_CHECK_INITIAL;
 
 
     //--------------------------------
@@ -162,18 +167,21 @@ int main()
     //------ Low voltage detection -------
     //------------------------------------
     //slow loop
-      if (time_delta(time_get(), slowLoopLastRun) > 10000){
+      if (time_delta(time_get(), slowLoopLastRun) > nextCheckInterval){
         slowLoopLastRun = time_get();
+		nextCheckInterval = VOLTAGE_CHECK_INTERVAL;
+		//TODO: vary check interval in some way depending on last voltage?
 
         //measure input voltage
         adcValue = ReadChannel(5); //read ADC channel 5 (PC5)
         inputVoltage = (float)adcValue / 1024 * 5 * 3.311; //scale adc value to adc voltage, scale adc voltage to input voltate (voltage divider)
         //beep.trigger((int)inputVoltage, 50, 100); //debug: output beep for each volt
         //thresholds, alerts
+		//TODO variable interval depending on voltage?
         if (inputVoltage < 10.6){ //critical
           beep.trigger(10, 200, 100);
         }else if(inputVoltage < 11){ //0%
-          beep.trigger(4, 200, 200);
+          beep.trigger(4, 150, 200);
         }else if(inputVoltage < 11.8){ //<25%
           beep.trigger(1, 80, 100);
         }else{
