@@ -5,7 +5,7 @@ Firmware for a custom pcb with an Atmega8 microcontroller, that controls the ele
 # TOC
 - [Links](#links)
 - [Usage](#usage)
-  * [First setup](#first-setup)
+  * [Initial setup](#initial-setup)
   * [Compile](#compile)
   * [Upload](#upload)
 - [Pin assignment](#pin-assignment)
@@ -33,7 +33,12 @@ Firmware for a custom pcb with an Atmega8 microcontroller, that controls the ele
 
 
 # Usage
-## First setup
+## Initial setup
+**Install required packages:**
+```
+yay -S cmake avr-gcc avr-libc
+```
+**Build enviroment:**
 ``` bash
 git clone git@github.com:Jonny999999/ihc-control_fw.git
 cd ihc-control_fw
