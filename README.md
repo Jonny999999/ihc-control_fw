@@ -1,8 +1,36 @@
-Firmware for a custom pcb with an Atmega8 microcontroller, that controls an IHC-Tractor.
+Firmware for a custom pcb with an Atmega8 microcontroller, that controls the electrical components of an IHC-Tractor.
+
+
+
+# TOC
+- [Links](#links)
+- [Usage](#usage)
+  * [First setup](#first-setup)
+  * [Compile](#compile)
+  * [Upload](#upload)
+- [Pin assignment](#pin-assignment)
+  * [Inputs](#inputs)
+  * [Outputs](#outputs)
+- [Custom libraries](#custom-libraries)
+  * [GPIO related](#GPIO-related)
+    + [GPIO_evaluateSwitch.hpp](#GPIO-evaluateswitchhpp)
+    + [GPIO_output.hpp](#GPIO-outputhpp)
+    + [a2d.h](#a2dh)
+  * [time related](#time-related)
+    + [time.h](#timeh)
+    + [clock.hpp](#clockhpp)
+    + [pulse.hpp](#pulsehpp)
+
+
+
 
 # Links
-PCB Project: https://github.com/Jonny999999/ihc-control_pcb (private)  
-Connection plan, fuses, connectors: [connection-plan.pdf](connection-plan.pdf)  
+- Project documentation: https://pfusch.zone/control-pcb
+- PCB Project: https://github.com/Jonny999999/ihc-control_pcb
+- Connection plan, fuses, connectors: [connection-plan.pdf](connection-plan.pdf)  
+
+
+
 
 # Usage
 ## First setup
@@ -14,15 +42,16 @@ cd build
 cmake ..
 ```
 
+
 ## Compile
 ``` bash
 cd build
 make
 ```
-### Note:
+**Note:**
 currently the latest version of avr-gcc produces the following error:
 ```
-/ihc-control_fw/include/gpio/a2d.c:11:15: error: array subscript 0 is outside array bounds of 'volatile uint8_t[0]' {aka 'volatile unsigned char[]'} [-Werror=array-bounds]
+/ihc-control_fw/include/GPIO/a2d.c:11:15: error: array subscript 0 is outside array bounds of 'volatile uint8_t[0]' {aka 'volatile unsigned char[]'} [-Werror=array-bounds]
    11 |         ADMUX &= ~(1<<REFS1);  //Vcc RefU
 ```
 downgrading the package `avr-gcc (12.1.0-1 => 11.3.0-1)` e.g. with `sudo downgrade avr-gcc` is the current workaround
@@ -37,9 +66,10 @@ sudo make hello_upload
 
 
 
-# Pin assignment
+
+# Pin Assignment
 ## Inputs
-### terminal TOP left (3x switch to 12V input)
+### 3x switch to 12V inputs (terminal TOP-LEFT)
 
 | Pin | Object | Variable | Description |
 | --- | --- | --- | --- |
@@ -48,9 +78,9 @@ sudo make hello_upload
 | PB0 | sPB0 | S_WORK_LIGHT | Toggle switch work light left dashboard |
 | GND | - | - | - |
 
-note: Switch parking light directly switches lights since controller is off in this key position (no input necessary)
+Note: Switch parking light directly powers lights since controller is off in this key position (no input necessary)
 
-### terminal bottom left (5x Switch to GND input)
+### 5x switch to GND inputs (terminal BOTTOM-LEFT)
 | Pin | Object | Variable | Description |
 | --- | --- | --- | --- |
 | PB3 | sPB3 | S_HIGH_BEAM | Momentary switch high beam in right dashboard |
@@ -60,8 +90,9 @@ note: Switch parking light directly switches lights since controller is off in t
 | PC2 | sPC2 | S_WARNING_LIGHTS | Toggle switch warning lights in left dashboard |
 | GND | - | - | - |
 
+
 ## Outputs
-### Relay outputs (separate terminals right)
+### Relay outputs (separate terminals RIGHT)
 | Pin | Object | Variable | Description |
 | --- | --- | --- | --- |
 | PD5 | k1 | OUT_BLINK_LEFT | blinker rear + connector |
@@ -73,30 +104,31 @@ note: Switch parking light directly switches lights since controller is off in t
 | PD1 | k7 | OUT_HIGH_BEAM | High beam in front |
 | PD0 | k8 | OUT_LOW_BEAM | Low beam in front |
 
-### Mosfet outputs (Terminal bottom middle)
+### Mosfet outputs (Terminal BOTTOM-CENTER)
 | Pin | Object | Variable | Description |
 | --- | --- | --- | --- |
 | PC4 | mos1 | OUT_HORN | Horn can be switched with mosfet (2 cables and measured max ~4A) |
-| PC3 | mos2 | OUT_CONTROL_LAMP | Control lamp in dashboard originally unused (intended "gearbox oil pressure") |
+| PC3 | mos2 | OUT_CONTROL_LAMP | Control lamp in dashboard (originally unused - intended use "gearbox oil pressure") |
 
 
 
-# Custom libraries
-## gpio
-### gpio_evaluateSwitch.hpp
-'gpio_evaluatedSwitch' class for initializing a gpio pin as input and debouncing it, with options to invert or enable pullup.
+
+# Custom Libraries
+## GPIO Related
+### GPIO_evaluateSwitch.hpp
+'GPIO_evaluatedSwitch' class for initializing a GPIO pin as input and debouncing it, with options to invert or enable pullup.
 features:  
-- debouncing (minOn minOff ms)
+- debounce (minOn minOff ms)
 - edge detection (risingEdge, fallingEdge)
-- inverting input (e.g. when switching to VCC)
-- enable pullup (default enabled/switching to gnd)
-- counting time on/off (msPressed, msReleased)
+- invert input (e.g. when switching to VCC)
+- enable pullup (default enabled => ON state = gnd level)
+- count time on/off (msPressed, msReleased)
 -> see header file for detailed description   
 
-### gpio_output.hpp
-'gpio_output' class to initialize and turning on/off a avr gpio pin in a abstracted way  
-the constructor initializes/defines the specified pin as output   
-with functions .on() off() or setState(bool) the pin can be switched  
+### GPIO_output.hpp
+'GPIO_output' class for initializing and turning a avr GPIO pin on/off in a abstracted way  
+- The constructor initializes/defines the specified pin as output   
+- With methods `.on()`, `off()` or `.setState(bool)` the pin can be set to the desired state  
 -> see header file for detailed description   
 
 ### a2d.h
@@ -106,10 +138,10 @@ uint16_t ReadChannel(uint8_t mux);
 ```
 
 
-## time
+## Time Related
 ### time.h
 Add possibility to get current timestamp and calculate difference between timestamps.  
-Used quite much in this project!
+(Used quite much in this project)
 ```cpp
 void time_init(void);  
 uint32_t time_get(void);
@@ -123,8 +155,5 @@ e.g. for blinker to have a single/equal pulsing signal that can be used multiple
 
 ### pulse.hpp
 'pulse' class to generate a certain count of pulses with specified durations  
-e.g. for beeper without delaying the program with any delay function  
+e.g. for buzzer without delaying the program with any delay function  
 -> see header file for detailed description  
-
-
-# Notes
