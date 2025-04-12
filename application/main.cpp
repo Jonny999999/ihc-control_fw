@@ -22,8 +22,11 @@ extern "C" {
 //========== config ==========
 //============================
 //#define SILENT //disable buzzer
-#define VOLTAGE_CHECK_INTERVAL 15000 //low voltage check (ms)
-#define VOLTAGE_CHECK_INITIAL 1200 //time first check
+#define VOLTAGE_CHECK_INTERVAL_MS 15*1000 // interval buzzer triggers beeps when voltage is below a threshold
+#define VOLTAGE_CHECK_INITIAL_MS 1200 // time waited after startup for first low voltage check
+
+#define INACTIVITY_NOTIFY_THRESHOLD_MS (uint32_t)10*60*60*1000 // inactivity after which buzzer starts beeping (10h)
+#define INACTIVITY_CHECK_INTERVAL 20*1000 // interval buzzer triggers beeps when timeout exceeded (30s)
 
 
 //=====================================
@@ -120,14 +123,19 @@ int main() {
     enum class lightState {OFF, ON, ON_TOGGLE};
     lightState highBeamState = lightState::OFF;
 
-    //blink
+    //blinkinker notify timeout
     uint32_t timestampBlinkStart = 0;
 
-    //input voltage
-    uint32_t slowLoopLastRun = 0; //first voltage check 1.5s after startup)
+    //battery voltage monitoring
+    uint32_t timestampLastVoltageCheck = 0; //first voltage check 1.5s after startup)
     uint16_t adcValue = 0;
     float inputVoltage = 0;
-    uint32_t nextCheckInterval = VOLTAGE_CHECK_INITIAL;
+    uint32_t nextCheckInterval = VOLTAGE_CHECK_INITIAL_MS;
+
+    // inactivity timeout
+    uint32_t timestampLastActivity = 0; // track activity
+    uint32_t timestampLastInactivityCheck = 0;
+
 
 
     //--------------------------------
@@ -162,14 +170,14 @@ int main() {
         beep.handle();
 
 
+        // TODO: Run low-voltage-check and inactivity-check in a slow loop? (no need to compare timestamps every cycle)
 
         //------------------------------------
         //------ Low voltage detection -------
         //------------------------------------
-        //slow loop
-        if (time_delta(time_get(), slowLoopLastRun) > nextCheckInterval) {
-            slowLoopLastRun = time_get();
-            nextCheckInterval = VOLTAGE_CHECK_INTERVAL;
+        if (time_delta(time_get(), timestampLastVoltageCheck) > nextCheckInterval) {
+            timestampLastVoltageCheck = time_get();
+            nextCheckInterval = VOLTAGE_CHECK_INTERVAL_MS;
             //TODO: vary check interval in some way depending on last voltage?
 
             //measure input voltage
@@ -181,12 +189,33 @@ int main() {
             //thresholds, alerts
             //TODO variable interval depending on voltage?
             if (inputVoltage < 10.6) {			//critical
-                beep.trigger(10, 200, 100);
+                beep.trigger(10, 300, 150);
             } else if(inputVoltage < 11) {		//0%
-                beep.trigger(4, 150, 200);
+                beep.trigger(4, 200, 150);
             } else if(inputVoltage < 11.8) {	//<25%
-                beep.trigger(1, 80, 100);
+                beep.trigger(1, 200, 100);
             }
+        }
+
+
+
+        //-----------------------------------
+        //-------- Inactivity check ---------
+        //-----------------------------------
+        if (time_delta(time_get(), timestampLastInactivityCheck) > INACTIVITY_CHECK_INTERVAL)
+        {
+            timestampLastInactivityCheck = time_get();
+            if (time_delta(time_get(), timestampLastActivity) > INACTIVITY_NOTIFY_THRESHOLD_MS)
+            {
+                beep.trigger(2, 800, 600);
+            }
+        }
+
+        //------- Track activity -------
+        // reset timestamp when any input event is detected
+        if (S_BLINK_LEFT.risingEdge || S_BLINK_RIGHT.risingEdge || S_WARNING_LIGHTS.risingEdge || S_HIGH_BEAM.risingEdge || S_HORN.risingEdge || S_WORK_LIGHT.risingEdge || S_BRAKE.risingEdge)
+        {
+            timestampLastActivity = time_get(); // track last activity (for inactivity notification)
         }
 
 

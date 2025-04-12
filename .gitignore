@@ -2,3 +2,5 @@ build
 
 #libreoffice lock files e.g. .\~lock.connection-plan.odp
 .~*
+
+.cache
